@@ -45,6 +45,7 @@ public class BodyTransformer extends ResponseDefinitionTransformer {
     
     private static final Pattern interpolationPattern = Pattern.compile("\\$\\(.*?\\)");
     private static final Pattern randomIntegerPattern = Pattern.compile("!RandomInteger");
+    private static final Pattern Date1IntegerPattern = Pattern.compile("!Date+1");
 
     private static ObjectMapper jsonMapper = initJsonMapper();
     private static ObjectMapper xmlMapper = initXmlMapper();
@@ -160,6 +161,15 @@ public class BodyTransformer extends ResponseDefinitionTransformer {
     private CharSequence getValue(String group, Map requestObject) {
         if (randomIntegerPattern.matcher(group).find()) {
             return String.valueOf(new Random().nextInt(2147483647));
+        }
+        if(Date1IntegerPattern.matcher(group).find()){
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+            Date   date       = format.parse (getValueFromRequestObject("data_inicial", requestObject)); 
+            Calendar c = Calendar.getInstance(); 
+            c.setTime(date); 
+            c.add(Calendar.DATE, 1);
+            date = c.getTime();
+            return format.format(date);
         }
 
         return getValueFromRequestObject(group, requestObject);
